@@ -103,7 +103,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
             stage('Test') {
                 steps {
                     container('dotnet-builder') {
-                        sh label: "dotnet test with code coverage and test report", script: '''
+                        sh label: "dotnet test with code coverage and test report", script: """
                         dotnet test /p:CollectCoverage=true \
                         /p:CoverletOutputFormat=opencover \
                         /p:CoverletOutput=$(pwd)/coverage/ \
@@ -111,7 +111,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                         -r ./TestResults/report.trx \
                         -o ./publish \
                         --no-build --no-restore
-                        '''
+                        """
                     }
                 }
             }
