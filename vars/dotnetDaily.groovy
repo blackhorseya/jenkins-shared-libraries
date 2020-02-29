@@ -47,7 +47,6 @@ Branch: ${env.GIT_BRANCH}
 Application: ${config.AppName}:${config.Version}
 """
                     sh '''
-                    echo ### Print env ###
                     printenv | sort
                     '''
                 }

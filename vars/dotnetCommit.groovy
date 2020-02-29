@@ -12,7 +12,7 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: dotnet-sdk
+  - name: dotnet-builder
     image: blackhorseya/dotnet-builder:3.1-alpine
     command:
     - cat
@@ -33,7 +33,7 @@ spec:
 
             stage('Build') {
                 steps {
-                    container('dotnet-sdk') {
+                    container('dotnet-builder') {
                         sh '''
                         echo ### dotnet build ###
                         dotnet build -c Release -o ./publish
@@ -44,7 +44,7 @@ spec:
 
             stage('Test') {
                 steps {
-                    container('dotnet-sdk') {
+                    container('dotnet-builder') {
                         sh '''
                         echo ### dotnet test ###
                         dotnet test
