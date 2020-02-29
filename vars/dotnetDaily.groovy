@@ -20,7 +20,7 @@ def call(body) {
             SONARQUBE_TOKEN = credentials('sonarqube-token')
 
             // kubernetes settings
-            KUBE_NS = "default"
+            KUBE_NS = "${config.KubeNamespace}"
             KUBE_CONFIG_FILE = credentials('kube-config')
         }
         agent {
