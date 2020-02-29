@@ -67,7 +67,6 @@ spec:
                                     script: 'yarn -s get-version',
                                     returnStdout: true
                             ).trim()
-                            IMAGE_NAME = "${DOCKERHUB_USR}/${APP_NAME}"
                         }
                     }
                     
