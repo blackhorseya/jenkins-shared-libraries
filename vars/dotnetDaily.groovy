@@ -154,7 +154,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                 steps {
                     container('helm') {
                         sh label: "print all release", script: """
-                        helm list -A
+                        helm --namespace=${KUBE_NS} list
                         """
                         sh label: "deploy to ${KUBE_NS} with ${IMAGE_NAME}:${FULL_VERSION}", script: """
                         helm --namespace=${KUBE_NS} upgrade --install dev-${APP_NAME} deploy/helm \
