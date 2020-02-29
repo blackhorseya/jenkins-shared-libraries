@@ -24,8 +24,10 @@ spec:
             stage('Prepare') {
                 steps {
                     echo "branch name: ${env.GIT_BRANCH}"
-                    sh 'ls -al'
-                    sh 'printenv'
+                    sh '''
+                    echo ### Print env ###
+                    printenv | sort
+                    '''
                 }
             }
 
@@ -33,6 +35,7 @@ spec:
                 steps {
                     container('dotnet-sdk') {
                         sh '''
+                        echo ### dotnet build ###
                         dotnet build -c Release -o ./publish
                         '''
                     }
@@ -43,6 +46,7 @@ spec:
                 steps {
                     container('dotnet-sdk') {
                         sh '''
+                        echo ### dotnet test ###
                         dotnet test
                         '''
                     }
