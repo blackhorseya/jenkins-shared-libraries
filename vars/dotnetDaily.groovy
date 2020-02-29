@@ -60,22 +60,22 @@ Branch: ${env.GIT_BRANCH}
 Application: ${config.AppName}:${FULL_VERSION}
 """
 
-                    sh script: "printenv | sort", label: "print all environment variable"
+                    sh label: "print all environment variable", script: "printenv | sort"
                     
                     container('dotnet-builder') {
-                        sh script: "dotnet --info", label: "print dotnet info"
+                        sh label: "print dotnet info", script: "dotnet --info"
                     }
                     
                     container('docker') {
-                        sh script: """
+                        sh label: "print docker info and version", script: """
                         docker info
                         docker version
-                        """, label: "print docker info and version"
+                        """
                     }
 
                     container('helm') {
-                        sh script: "helm version", label: "print helm version"
-                        sh script: "mkdir -p /root/.kube/ && cp ${KUBE_CONFIG_FILE} /root/.kube/config", label: "copy kube config to /root/.kube/"
+                        sh label: "print helm version", script: "helm version"
+                        sh label: "copy kube config to /root/.kube/", script: "mkdir -p /root/.kube/ && cp ${KUBE_CONFIG_FILE} /root/.kube/config"
                     }
                 }
             }
@@ -83,8 +83,7 @@ Application: ${config.AppName}:${FULL_VERSION}
             stage('Build') {
                 steps {
                     container('dotnet-builder') {
-                        sh """
-                        echo '### sonarscanner begin ###'
+                        sh label: "sonarscanner begin", script: """
                         dotnet sonarscanner begin /k:\"${config.AppName}\" \
                         /v:${FULL_VERSION} \
                         /d:sonar.host.url=${SONARQUBE_HOST_URL} \
@@ -94,7 +93,7 @@ Application: ${config.AppName}:${FULL_VERSION}
                         /d:sonar.coverage.exclusions=**/Entities/**/*,test/**/* \
                         /d:sonar.cs.vstest.reportsPaths=${PWD}/TestResults/report.trx
                         """
-                        sh 'dotnet build -c Release -o ./publish'
+                        sh label: "dotnet build", script: "dotnet build -c Release -o ./publish"
                     }
                 }
             }
@@ -102,8 +101,7 @@ Application: ${config.AppName}:${FULL_VERSION}
             stage('Test') {
                 steps {
                     container('dotnet-builder') {
-                        sh '''
-                        echo '### dotnet test with code coverage and test report ###'
+                        sh label: "dotnet test with code coverage and test report", script: '''
                         dotnet test /p:CollectCoverage=true \
                         /p:CoverletOutputFormat=opencover \
                         /p:CoverletOutput=$(pwd)/coverage/ \
@@ -119,8 +117,7 @@ Application: ${config.AppName}:${FULL_VERSION}
             stage('Static Code Analysis') {
                 steps {
                     container('dotnet-builder') {
-                        sh '''
-                        echo '### sonarscanner end ###'
+                        sh label: "sonarscanner end", script: '''
                         dotnet sonarscanner end /d:sonar.login=${SONARQUBE_TOKEN}
                         '''
                     }
@@ -130,12 +127,14 @@ Application: ${config.AppName}:${FULL_VERSION}
             stage('Build and push docker image') {
                 steps {
                     container('docker') {
-                        sh 'docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .'
-                        sh 'docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}'
-                        sh 'docker push ${IMAGE_NAME}:latest'
-                        sh 'docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${FULL_VERSION}'
-                        sh 'docker push ${IMAGE_NAME}:${FULL_VERSION}'
-                        sh 'docker images ${IMAGE_NAME}'
+                        sh label: "docker build image", script: 'docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .'
+                        sh label: "docker login to dockerhub", script: 'docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}'
+                        sh label: "tag and push ${FULL_VERSION}", script: '''
+                        docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${FULL_VERSION}
+                        docker push ${IMAGE_NAME}:latest
+                        docker push ${IMAGE_NAME}:${FULL_VERSION}
+                        '''
+                        sh label: "print all ${IMAGE_NAME}", script: 'docker images ${IMAGE_NAME}'
                     }
                 }
             }
