@@ -12,6 +12,10 @@ def call(body) {
             // sonarqube settings
             SONARQUBE_HOST_URL = "https://sonar.blackhorseya.com"
             SONARQUBE_TOKEN = credentials('sonarqube-token')
+
+            // kubernetes settings
+            KUBE_NS = "dev"
+            KUBE_CONFIG_FILE = credentials('kube-config')
         }
         agent {
             kubernetes {
