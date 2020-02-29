@@ -40,7 +40,7 @@ spec:
     - name: dockersock
       mountPath: /var/run/docker.sock
   - name: helm
-    image: alpine/helm:3.0.1
+    image: alpine/helm:3.1.0
     command: ['cat']
     tty: true
   volumes:
@@ -63,17 +63,19 @@ Application: ${config.AppName}:${FULL_VERSION}
                     sh script: "printenv | sort", label: "print all environment variable"
                     
                     container('dotnet-builder') {
-                        sh 'dotnet --info'
+                        sh script: "dotnet --info", label: "print dotnet info"
                     }
                     
                     container('docker') {
-                        sh 'docker info'
-                        sh 'docker version'
+                        sh script: """
+                        docker info
+                        docker version
+                        """, label: "print docker info and version"
                     }
 
                     container('helm') {
-                        sh 'helm version'
-                        sh 'mkdir -p /root/.kube/ && cp $KUBE_CONFIG_FILE /root/.kube/config'
+                        sh script: "helm version", label: "print helm version"
+                        sh script: "mkdir -p /root/.kube/ && cp ${KUBE_CONFIG_FILE} /root/.kube/config", label: "copy kube config to /root/.kube/"
                     }
                 }
             }
