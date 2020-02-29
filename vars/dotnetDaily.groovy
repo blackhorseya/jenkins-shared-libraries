@@ -8,6 +8,10 @@ def call(body) {
         environment {
             // application settings
             FULL_VERSION = "${config.Version}.${BUILD_ID}"
+            IMAGE_NAME = "${DOCKERHUB_USR}/${config.AppName}"
+
+            // docker credentials
+            DOCKERHUB = credentials('docker-hub-credential')
 
             // sonarqube settings
             SONARQUBE_HOST_URL = "https://sonar.blackhorseya.com"
@@ -53,7 +57,7 @@ spec:
 Perform ${env.JOB_NAME} for
 Repo: ${env.GIT_URL}
 Branch: ${env.GIT_BRANCH}
-Application: ${config.AppName}:${config.Version}
+Application: ${config.AppName}:${FULL_VERSION}
 """
                     sh '''
                     printenv | sort
@@ -118,6 +122,25 @@ Application: ${config.AppName}:${config.Version}
                         echo '### sonarscanner end ###'
                         dotnet sonarscanner end /d:sonar.login=${SONARQUBE_TOKEN}
                         """
+                    }
+                }
+            }
+
+            stage('Build and push docker image') {
+                steps {
+                    container('docker') {
+                        sh """
+                        echo '### build ${IMAGE_NAME}'
+                        docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .
+                        """
+
+                        sh "docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}"
+                        sh """
+                        docker push ${IMAGE_NAME}:latest && \
+                        docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${FULL_VERSION} && \
+                        docker push ${IMAGE_NAME}:${FULL_VERSION}
+                        """
+                        sh 'docker images ${IMAGE_NAME}'
                     }
                 }
             }
