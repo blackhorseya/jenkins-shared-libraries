@@ -77,7 +77,9 @@ Application: ${APP_NAME}:${FULL_VERSION}
 
                     container('helm') {
                         sh label: "print helm version", script: "helm version"
-                        sh label: "copy kube config to /root/.kube/", script: "mkdir -p /root/.kube/ && cp ${KUBE_CONFIG_FILE} /root/.kube/config"
+                        sh label: "copy kube config to /root/.kube/", script: """
+                        mkdir -p /root/.kube/ && cp ${KUBE_CONFIG_FILE} /root/.kube/config
+                        """
                     }
                 }
             }
@@ -95,7 +97,9 @@ Application: ${APP_NAME}:${FULL_VERSION}
                         /d:sonar.coverage.exclusions=**/Entities/**/*,test/**/* \
                         /d:sonar.cs.vstest.reportsPaths=${PWD}/TestResults/report.trx
                         """
-                        sh label: "dotnet build", script: "dotnet build -c Release -o ./publish"
+                        sh label: "dotnet build", script: """
+                        dotnet build -c Release -o ./publish
+                        """
                     }
                 }
             }
@@ -119,9 +123,9 @@ Application: ${APP_NAME}:${FULL_VERSION}
             stage('Static Code Analysis') {
                 steps {
                     container('dotnet-builder') {
-                        sh label: "sonarscanner end", script: '''
+                        sh label: "sonarscanner end", script: """
                         dotnet sonarscanner end /d:sonar.login=${SONARQUBE_TOKEN}
-                        '''
+                        """
                     }
                 }
             }
@@ -129,14 +133,19 @@ Application: ${APP_NAME}:${FULL_VERSION}
             stage('Build and push docker image') {
                 steps {
                     container('docker') {
-                        sh label: "docker build image", script: 'docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .'
-                        sh label: "docker login to dockerhub", script: 'docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}'
-                        sh label: "docker tag and push image ${FULL_VERSION}", script: '''
+                        sh label: "docker build image", script: """
+                        docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .
+                        """
+                        sh label: "docker login to dockerhub", script: """
+                        docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}
+                        """
+                        sh label: "docker tag and push image ${FULL_VERSION}", script: """
                         docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${FULL_VERSION}
                         docker push ${IMAGE_NAME}:latest
                         docker push ${IMAGE_NAME}:${FULL_VERSION}
-                        '''
-                        sh label: "print all ${IMAGE_NAME}", script: 'docker images ${IMAGE_NAME}'
+                        """
+                        sh label: "print all ${IMAGE_NAME}", script: """
+                        docker images ${IMAGE_NAME}"""
                     }
                 }
             }
