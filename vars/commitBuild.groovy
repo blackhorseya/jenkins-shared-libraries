@@ -22,9 +22,11 @@ spec:
         }
         stages {
             stage ('Prepare') {
-                echo config.HW
-                echo config.P1
-                echo config.Custom
+                steps {
+                    echo config.HW
+                    echo config.P1
+                    echo config.Custom
+                }
             }
         }
     }
