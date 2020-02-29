@@ -79,7 +79,7 @@ Application: ${config.AppName}:${config.Version}
                 steps {
                     container('dotnet-builder') {
                         sh """
-                        echo ### sonarscanner begin ###
+                        echo '### sonarscanner begin ###'
                         dotnet sonarscanner begin /k:\"${config.AppName}\" \
                         /v:${FULL_VERSION} \
                         /d:sonar.host.url=${SONARQUBE_HOST_URL} \
@@ -98,7 +98,7 @@ Application: ${config.AppName}:${config.Version}
                 steps {
                     container('dotnet-builder') {
                         sh '''
-                        echo ### dotnet test with code coverage and test report ###
+                        echo '### dotnet test with code coverage and test report ###'
                         dotnet test /p:CollectCoverage=true \
                         /p:CoverletOutputFormat=opencover \
                         /p:CoverletOutput=$(pwd)/coverage/ \
@@ -107,6 +107,17 @@ Application: ${config.AppName}:${config.Version}
                         -o ./publish \
                         --no-build --no-restore
                         '''
+                    }
+                }
+            }
+
+            stage('Static Code Analysis') {
+                steps {
+                    container('dotnet-builder') {
+                        sh """
+                        echo '### sonarscanner end ###'
+                        dotnet sonarscanner end /d:sonar.login=${SONARQUBE_TOKEN}
+                        """
                     }
                 }
             }
