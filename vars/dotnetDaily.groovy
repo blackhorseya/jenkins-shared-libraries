@@ -7,8 +7,10 @@ def call(body) {
     pipeline {
         environment {
             // application settings
-            FULL_VERSION = "${config.Version}.${BUILD_ID}"
-            IMAGE_NAME = "${DOCKERHUB_USR}/${config.AppName}"
+            APP_NAME = "${config.AppName}"
+            VERSION = "${config.Version}"
+            FULL_VERSION = "${VERSION}.${BUILD_ID}"
+            IMAGE_NAME = "${DOCKERHUB_USR}/${APP_NAME}"
 
             // docker credentials
             DOCKERHUB = credentials('docker-hub-credential')
@@ -18,7 +20,7 @@ def call(body) {
             SONARQUBE_TOKEN = credentials('sonarqube-token')
 
             // kubernetes settings
-            KUBE_NS = "dev"
+            KUBE_NS = "default"
             KUBE_CONFIG_FILE = credentials('kube-config')
         }
         agent {
@@ -57,7 +59,7 @@ spec:
 Perform ${env.JOB_NAME} for
 Repo: ${env.GIT_URL}
 Branch: ${env.GIT_BRANCH}
-Application: ${config.AppName}:${FULL_VERSION}
+Application: ${APP_NAME}:${FULL_VERSION}
 """
 
                     sh label: "print all environment variable", script: "printenv | sort"
@@ -84,7 +86,7 @@ Application: ${config.AppName}:${FULL_VERSION}
                 steps {
                     container('dotnet-builder') {
                         sh label: "sonarscanner begin", script: """
-                        dotnet sonarscanner begin /k:\"${config.AppName}\" \
+                        dotnet sonarscanner begin /k:\"${APP_NAME}\" \
                         /v:${FULL_VERSION} \
                         /d:sonar.host.url=${SONARQUBE_HOST_URL} \
                         /d:sonar.login=${SONARQUBE_TOKEN} \
@@ -129,12 +131,31 @@ Application: ${config.AppName}:${FULL_VERSION}
                     container('docker') {
                         sh label: "docker build image", script: 'docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .'
                         sh label: "docker login to dockerhub", script: 'docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}'
-                        sh label: "tag and push ${FULL_VERSION}", script: '''
+                        sh label: "docker tag and push image ${FULL_VERSION}", script: '''
                         docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${FULL_VERSION}
                         docker push ${IMAGE_NAME}:latest
                         docker push ${IMAGE_NAME}:${FULL_VERSION}
                         '''
                         sh label: "print all ${IMAGE_NAME}", script: 'docker images ${IMAGE_NAME}'
+                    }
+                }
+            }
+
+            stage('Deploy') {
+                steps {
+                    container('helm') {
+                        sh label: "deploy to ${KUBE_NS} with ${IMAGE_NAME}:${FULL_VERSION}", script: """
+                        helm --namespace=${KUBE_NS} upgrade --install dev-${APP_NAME} deploy/helm \
+                        -f deploy/config/dev/values.yaml \
+                        --set image.tag=${FULL_VERSION} \
+                        --wait --atomic
+                        """
+                    }
+                    sshagent(['github-ssh']) {
+                        sh label: "git tag new v${VERSION}-alpha", script: """
+                        git tag --delete v${VERSION}-alpha | exit 0 && git push --delete origin v${VERSION}-alpha | exit 0
+                        git tag v${VERSION}-alpha && git push --tags
+                        """
                     }
                 }
             }
