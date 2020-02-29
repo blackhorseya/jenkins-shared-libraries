@@ -59,9 +59,8 @@ Repo: ${env.GIT_URL}
 Branch: ${env.GIT_BRANCH}
 Application: ${config.AppName}:${FULL_VERSION}
 """
-                    sh '''
-                    printenv | sort
-                    '''
+
+                    sh script: "printenv | sort" label: "print all environment variable"
                     
                     container('dotnet-builder') {
                         sh 'dotnet --info'
