@@ -160,7 +160,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                         helm --namespace=${KUBE_NS} upgrade --install dev-${APP_NAME} deploy/helm \
                         -f deploy/config/dev/values.yaml \
                         --set image.tag=${FULL_VERSION} \
-                        --wait --atomic -v
+                        --wait --atomic -v 3
                         """
                     }
                     sshagent(['github-ssh']) {
