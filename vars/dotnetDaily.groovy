@@ -6,7 +6,12 @@ def call(body) {
 
     pipeline {
         environment {
+            // application settings
             FULL_VERSION = "${config.Version}.${BUILD_ID}"
+
+            // sonarqube settings
+            SONARQUBE_HOST_URL = "https://sonar.blackhorseya.com"
+            SONARQUBE_TOKEN = credentials('sonarqube-token')
         }
         agent {
             kubernetes {
@@ -49,26 +54,54 @@ Application: ${config.AppName}:${config.Version}
                     sh '''
                     printenv | sort
                     '''
+                    
+                    container('dotnet-builder') {
+                        sh 'dotnet --info'
+                    }
+                    
+                    container('docker') {
+                        sh 'docker info'
+                        sh 'docker version'
+                    }
+
+                    container('helm') {
+                        sh 'helm version'
+                        sh 'mkdir -p /root/.kube/ && cp $KUBE_CONFIG_FILE /root/.kube/config'
+                    }
                 }
             }
 
             stage('Build') {
                 steps {
-                    container('dotnet-sdk') {
-                        sh '''
-                        echo ### dotnet build ###
-                        dotnet build -c Release -o ./publish
-                        '''
+                    container('dotnet-builder') {
+                        sh """
+                        echo ### sonarscanner begin ###
+                        dotnet sonarscanner begin /k:\"${config.AppName}\" \
+                        /v:${FULL_VERSION} \
+                        /d:sonar.host.url=${SONARQUBE_HOST_URL} \
+                        /d:sonar.login=${SONARQUBE_TOKEN} \
+                        /d:sonar.exclusions=**/*.js,**/*.ts,**/*.css,bin/**/*,obj/**/*,wwwroot/**/*,ClientApp/**/* \
+                        /d:sonar.cs.opencover.reportsPaths=${PWD}/coverage/coverage.opencover.xml \
+                        /d:sonar.coverage.exclusions=**/Entities/**/*,test/**/* \
+                        /d:sonar.cs.vstest.reportsPaths=${PWD}/TestResults/report.trx
+                        """
+                        sh 'dotnet build -c Release -o ./publish'
                     }
                 }
             }
 
             stage('Test') {
                 steps {
-                    container('dotnet-sdk') {
+                    container('dotnet-builder') {
                         sh '''
-                        echo ### dotnet test ###
-                        dotnet test
+                        echo ### dotnet test with code coverage and test report ###
+                        dotnet test /p:CollectCoverage=true \
+                        /p:CoverletOutputFormat=opencover \
+                        /p:CoverletOutput=$(pwd)/coverage/ \
+                        --logger trx \
+                        -r ./TestResults/report.trx \
+                        -o ./publish \
+                        --no-build --no-restore
                         '''
                     }
                 }
