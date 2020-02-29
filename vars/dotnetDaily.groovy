@@ -106,7 +106,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                         sh label: "dotnet test with code coverage and test report", script: """
                         dotnet test /p:CollectCoverage=true \
                         /p:CoverletOutputFormat=opencover \
-                        /p:CoverletOutput=$(pwd)/coverage/ \
+                        /p:CoverletOutput=${PWD}/coverage/ \
                         --logger trx \
                         -r ./TestResults/report.trx \
                         -o ./publish \
