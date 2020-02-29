@@ -118,10 +118,10 @@ Application: ${config.AppName}:${FULL_VERSION}
             stage('Static Code Analysis') {
                 steps {
                     container('dotnet-builder') {
-                        sh """
+                        sh '''
                         echo '### sonarscanner end ###'
                         dotnet sonarscanner end /d:sonar.login=${SONARQUBE_TOKEN}
-                        """
+                        '''
                     }
                 }
             }
@@ -129,17 +129,11 @@ Application: ${config.AppName}:${FULL_VERSION}
             stage('Build and push docker image') {
                 steps {
                     container('docker') {
-                        sh """
-                        echo '### build ${IMAGE_NAME}'
-                        docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .
-                        """
-
-                        sh "docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}"
-                        sh """
-                        docker push ${IMAGE_NAME}:latest && \
-                        docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${FULL_VERSION} && \
-                        docker push ${IMAGE_NAME}:${FULL_VERSION}
-                        """
+                        sh 'docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .'
+                        sh 'docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}'
+                        sh 'docker push ${IMAGE_NAME}:latest'
+                        sh 'docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${FULL_VERSION}'
+                        sh 'docker push ${IMAGE_NAME}:${FULL_VERSION}'
                         sh 'docker images ${IMAGE_NAME}'
                     }
                 }
