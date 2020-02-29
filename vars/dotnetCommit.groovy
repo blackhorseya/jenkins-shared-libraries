@@ -24,20 +24,16 @@ spec:
             stage('Prepare') {
                 steps {
                     echo "branch name: ${env.GIT_BRANCH}"
-                    sh '''
-                    echo ### Print env ###
-                    printenv | sort
-                    '''
+                    sh label: "print all environment variable", script: "printenv | sort"
                 }
             }
 
             stage('Build') {
                 steps {
                     container('dotnet-builder') {
-                        sh '''
-                        echo ### dotnet build ###
+                        sh label: "dotnet build", script: """
                         dotnet build -c Release -o ./publish
-                        '''
+                        """
                     }
                 }
             }
@@ -45,10 +41,9 @@ spec:
             stage('Test') {
                 steps {
                     container('dotnet-builder') {
-                        sh '''
-                        echo ### dotnet test ###
+                        sh label: "dotnet test", script: """
                         dotnet test
-                        '''
+                        """
                     }
                 }
             }
