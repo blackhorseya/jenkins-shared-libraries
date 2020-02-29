@@ -60,7 +60,7 @@ Branch: ${env.GIT_BRANCH}
 Application: ${config.AppName}:${FULL_VERSION}
 """
 
-                    sh script: "printenv | sort" label: "print all environment variable"
+                    sh script: "printenv | sort", label: "print all environment variable"
                     
                     container('dotnet-builder') {
                         sh 'dotnet --info'
