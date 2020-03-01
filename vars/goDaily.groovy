@@ -84,6 +84,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                         sh label: "golang test with code coverage and test report", script: """
                         go test -v ./... -coverprofile=cover.out | go-junit-report > test.xml
                         gocov convert cover.out | gocov-xml > coverage.xml
+                        ls -al
                         """
                     }
                 }
@@ -93,6 +94,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                 steps {
                     container('sonar-scanner') {
                         sh label: "sonar-scanner", script: """
+                        ls -al
                         sonar-scanner \
                         -Dsonar.projectKey=nester \
                         -Dsonar.projectVersion=${FULL_VERSION} \
