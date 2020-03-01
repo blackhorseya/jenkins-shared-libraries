@@ -56,7 +56,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                     container('builder') {
                         sh label: "print builder version", script: "go version"
                         sh label: "install package", script: """
-                        apk add --no-cache make
+                        apk add --no-cache make build-base
                         go get -u github.com/jstemmer/go-junit-report
                         go get -u github.com/axw/gocov/...
                         go get -u github.com/AlekSi/gocov-xml
@@ -80,7 +80,6 @@ Application: ${APP_NAME}:${FULL_VERSION}
                 steps {
                     container('builder') {
                         sh label: "dotnet test with code coverage and test report", script: """
-                        CGO_ENABLED=0
                         go test -v ./... -coverprofile=cover.out | go-junit-report > test.xml
                         gocov convert cover.out | gocov-xml > coverage.xml
                         """
