@@ -70,8 +70,10 @@ Application: ${APP_NAME}:${FULL_VERSION}
                     container('sls') {
                         sh label: "install package", script: """
                         yarn global add serverless
-                        sls version
+                        apk add --no-cache make
                         """
+                        sh label: "sls version", script: "sls version"
+                        sh label: "show sls info", script: "make info"
                     }
                 }
             }
