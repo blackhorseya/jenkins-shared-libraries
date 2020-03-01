@@ -38,21 +38,6 @@ spec:
     image: sonarsource/sonar-scanner-cli
     command: ['cat']
     tty: true
-  - name: docker
-    image: docker:latest
-    command: ['cat']
-    tty: true
-    volumeMounts:
-    - name: dockersock
-      mountPath: /var/run/docker.sock
-  - name: helm
-    image: alpine/helm:3.1.0
-    command: ['cat']
-    tty: true
-  volumes:
-  - name: dockersock
-    hostPath:
-      path: /var/run/docker.sock
 """
             }
         }
@@ -95,8 +80,9 @@ Application: ${APP_NAME}:${FULL_VERSION}
                 steps {
                     container('builder') {
                         sh label: "dotnet test with code coverage and test report", script: """
+                        CGO_ENABLED=0
                         go test -v ./... -coverprofile=cover.out | go-junit-report > test.xml
-                        CGO_ENABLED=0 gocov convert cover.out | gocov-xml > coverage.xml
+                        gocov convert cover.out | gocov-xml > coverage.xml
                         """
                     }
                 }
