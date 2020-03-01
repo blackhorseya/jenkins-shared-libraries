@@ -120,7 +120,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                 steps {
                     container('sls') {
                         sh label: "deploy to ${KUBE_NS}", script: """
-                        make deploy
+                        make deployWithoutBuild
                         """
                     }
                     sshagent(['github-ssh']) {
