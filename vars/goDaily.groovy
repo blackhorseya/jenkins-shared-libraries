@@ -22,6 +22,8 @@ def call(body) {
             // kubernetes settings
             KUBE_NS = "${config.KubeNamespace}"
             KUBE_CONFIG_FILE = credentials('kube-config')
+
+            CGO_ENABLED = '0'
         }
         agent {
             kubernetes {
@@ -56,7 +58,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                     container('builder') {
                         sh label: "print builder version", script: "go version"
                         sh label: "install package", script: """
-                        apk add --no-cache make build-base
+                        apk add --no-cache make
                         go get -u github.com/jstemmer/go-junit-report
                         go get -u github.com/axw/gocov/...
                         go get -u github.com/AlekSi/gocov-xml
