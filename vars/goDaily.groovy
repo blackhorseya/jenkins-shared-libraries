@@ -81,7 +81,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
             stage('Test') {
                 steps {
                     container('builder') {
-                        sh label: "dotnet test with code coverage and test report", script: """
+                        sh label: "golang test with code coverage and test report", script: """
                         go test -v ./... -coverprofile=cover.out | go-junit-report > test.xml
                         gocov convert cover.out | gocov-xml > coverage.xml
                         """
