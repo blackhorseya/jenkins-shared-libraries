@@ -59,9 +59,6 @@ Application: ${APP_NAME}:${FULL_VERSION}
                         sh label: "print builder version", script: "go version"
                         sh label: "install package", script: """
                         apk add --no-cache make
-                        go get -u github.com/jstemmer/go-junit-report
-                        go get -u github.com/axw/gocov/...
-                        go get -u github.com/AlekSi/gocov-xml
                         go mod download
                         """
                     }
@@ -82,9 +79,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                 steps {
                     container('builder') {
                         sh label: "golang test with code coverage and test report", script: """
-                        go test -v ./... -coverprofile=cover.out | go-junit-report > test.xml
-                        gocov convert cover.out | gocov-xml > coverage.xml
-                        ls -al
+                        go test -v ./... -coverprofile=cover.out -json > test.out
                         """
                     }
                 }
@@ -94,7 +89,6 @@ Application: ${APP_NAME}:${FULL_VERSION}
                 steps {
                     container('sonar-scanner') {
                         sh label: "sonar-scanner", script: """
-                        ls -al
                         sonar-scanner \
                         -Dsonar.projectKey=nester \
                         -Dsonar.projectVersion=${FULL_VERSION} \
