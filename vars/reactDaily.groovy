@@ -143,7 +143,7 @@ Application: ${APP_NAME}:${FULL_VERSION}
                         sh label: "deploy to ${KUBE_NS} with ${IMAGE_NAME}:${FULL_VERSION}", script: """
                         helm --namespace=${KUBE_NS} upgrade --install dev-${APP_NAME} deploy/helm \
                         -f deploy/config/dev/values.yaml \
-                        --set image.tag=${FULL_VERSION} --wait
+                        --set image.tag=${FULL_VERSION}
                         """
                     }
                     sshagent(['github-ssh']) {

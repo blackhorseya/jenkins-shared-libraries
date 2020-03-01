@@ -99,6 +99,27 @@ Application: ${APP_NAME}:${FULL_VERSION}
                     }
                 }
             }
+
+            stage('Deploy') {
+                steps {
+                    container('helm') {
+                        sh label: "print all release", script: """
+                        helm --namespace=${KUBE_NS} list
+                        """
+                        sh label: "deploy to ${KUBE_NS} with ${IMAGE_NAME}:${FULL_VERSION}", script: """
+                        helm --namespace=${KUBE_NS} upgrade --install dev-${APP_NAME} deploy/helm \
+                        -f deploy/config/dev/values.yaml \
+                        --set image.tag=${FULL_VERSION} --wait
+                        """
+                    }
+                    sshagent(['github-ssh']) {
+                        sh label: "git tag new v${VERSION}-alpha", script: """
+                        git tag --delete v${VERSION}-alpha | exit 0 && git push --delete origin v${VERSION}-alpha | exit 0
+                        git tag v${VERSION}-alpha && git push --tags
+                        """
+                    }
+                }
+            }
         }
 
         post {
