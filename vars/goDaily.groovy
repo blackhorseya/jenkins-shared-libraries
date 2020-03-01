@@ -75,8 +75,6 @@ Application: ${APP_NAME}:${FULL_VERSION}
                         go get -u github.com/jstemmer/go-junit-report
                         go get -u github.com/axw/gocov/...
                         go get -u github.com/AlekSi/gocov-xml
-                        go get -u gopkg.in/alecthomas/gometalinter.v1
-                        gometalinter.v1 --install
                         go mod download
                         """
                     }
@@ -107,9 +105,6 @@ Application: ${APP_NAME}:${FULL_VERSION}
             stage('Static Code Analysis') {
                 steps {
                     container('sonar-scanner') {
-                        sh label: "style check", script: """
-                        gometalinter.v1 --checkstyle > report.xml
-                        """
                         sh label: "sonar-scanner", script: """
                         sonar-scanner \
                         -Dsonar.projectKey=nester \
