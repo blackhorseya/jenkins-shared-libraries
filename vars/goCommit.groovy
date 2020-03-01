@@ -15,7 +15,7 @@ spec:
   - name: builder
     image: golang:alpine
     command:
-    - cat
+    - sh
     tty: true
 """
             }
