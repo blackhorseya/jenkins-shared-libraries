@@ -5,6 +5,9 @@ def call(body) {
     body()
 
     pipeline {
+        environment {
+            CGO_ENABLED = '0'
+        }
         agent {
             kubernetes {
                 yaml """
