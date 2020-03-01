@@ -40,6 +40,10 @@ spec:
     image: sonarsource/sonar-scanner-cli
     command: ['cat']
     tty: true
+  - name: golangci
+    image: golangci/golangci-lint:latest-alpine
+    command: ['cat']
+    tty: true
 """
             }
         }
@@ -87,6 +91,11 @@ Application: ${APP_NAME}:${FULL_VERSION}
 
             stage('Static Code Analysis') {
                 steps {
+                    container('golangci') {
+                        sh label: "export check style", script: """
+                        golangci-lint run --out-format checkstyle ./... > report.xml
+                        """
+                    }
                     container('sonar-scanner') {
                         sh label: "sonar-scanner", script: """
                         sonar-scanner \
