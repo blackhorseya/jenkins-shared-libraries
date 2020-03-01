@@ -21,7 +21,7 @@ def call(body) {
 
             // kubernetes settings
             KUBE_NS = "${config.KubeNamespace}"
-            KUBE_CONFIG_FILE = credentials('kube-config')
+            AWS_CREDENTIALS_FILE = credentials('aws-credentials')
 
             CGO_ENABLED = '0'
         }
@@ -61,16 +61,19 @@ Application: ${APP_NAME}:${FULL_VERSION}
                     
                     container('builder') {
                         sh label: "print builder version", script: "go version"
-                        sh label: "install package", script: """
+                        sh label: "install package for builder", script: """
                         apk add --no-cache make
                         go mod download
                         """
                     }
 
                     container('sls') {
-                        sh label: "install package", script: """
+                        sh label: "install package for sls", script: """
                         yarn global add serverless
                         apk add --no-cache make
+                        """
+                        sh label: "copy aws credentials to /root/.aws/", script: """
+                        mkdir -p /root/.aws/ && cp ${AWS_CREDENTIALS_FILE} /root/.aws/credentials
                         """
                         sh label: "sls version", script: "sls version"
                         sh label: "show sls info", script: "make info"
