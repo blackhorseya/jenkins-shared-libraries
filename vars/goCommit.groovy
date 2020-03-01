@@ -11,11 +11,14 @@ def call(body) {
 apiVersion: v1
 kind: Pod
 spec:
+  securityContext:
+    runAsUser: root
+    runAsGroup: root
   containers:
   - name: builder
     image: golang:alpine
     command:
-    - sh
+    - cat
     tty: true
 """
             }
