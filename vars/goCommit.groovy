@@ -19,6 +19,7 @@ spec:
     tty: true
     securityContext:
       runAsUser: 0
+      runAsUser: 0
       allowPrivilegeEscalation: false
 """
             }
@@ -29,6 +30,7 @@ spec:
                     echo "branch name: ${env.GIT_BRANCH}"
                     sh label: "print all environment variable", script: "printenv | sort"
                     sh label: "install package", script: """
+                    id
                     apk add --no-cache make
                     """
                 }
