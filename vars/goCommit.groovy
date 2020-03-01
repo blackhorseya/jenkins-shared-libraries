@@ -17,10 +17,6 @@ spec:
     command:
     - cat
     tty: true
-    securityContext:
-      runAsUser: 0
-      runAsUser: 0
-      allowPrivilegeEscalation: false
 """
             }
         }
@@ -29,10 +25,12 @@ spec:
                 steps {
                     echo "branch name: ${env.GIT_BRANCH}"
                     sh label: "print all environment variable", script: "printenv | sort"
-                    sh label: "install package", script: """
-                    id
-                    apk add --no-cache make
-                    """
+
+                    container('builder') {
+                        sh label: "install package", script: """
+                        apk add --no-cache make
+                        """
+                    }
                 }
             }
 
