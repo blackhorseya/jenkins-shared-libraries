@@ -46,7 +46,7 @@ spec:
 
             stage('Test') {
                 steps {
-                    container('dotnet-builder') {
+                    container('builder') {
                         sh label: "golang test", script: """
                         make test
                         """
