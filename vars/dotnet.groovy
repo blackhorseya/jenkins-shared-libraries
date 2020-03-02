@@ -40,3 +40,14 @@ def test(Map configs) {
     dotnet test ${coverage} ${report} ${output}
     """
 }
+
+def scanner(Map configs) {
+    sh label: "sonar-scanner", script: """
+    sonar-scanner \
+    -Dsonar.projectKey=${configs.projectKey} \
+    -Dsonar.projectVersion=${configs.version} \
+    -Dsonar.sources=. \
+    -Dsonar.host.url=${configs.hostUrl} \
+    -Dsonar.login=${configs.token}
+    """
+}
