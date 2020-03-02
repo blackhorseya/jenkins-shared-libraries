@@ -35,6 +35,7 @@ def test(body) {
     def output = ""
 
     if (config.genCoverage) {
+        echo "gen coverage"
         coverage = "/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=${PWD}/coverage/"
     }
 
