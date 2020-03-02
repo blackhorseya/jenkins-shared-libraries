@@ -1,5 +1,19 @@
 import java.util.regex.Pattern
 
+def getChanges() {
+    def ret = ""
+    def changeLogSets = currentBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.length; j++) {
+            def entry = entries[j]
+            ret += "${j+1}. ${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}\n${entry.msg}"
+        }
+    }
+
+    return ret
+}
+
 def gitAddTag(String credentialId, String env, String version) {
     if (credentialId == null) {
         error("missing credentialId from parameters")
