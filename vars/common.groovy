@@ -15,7 +15,7 @@ def getChanges() {
 }
 
 def getAuthorEmail() {
-    return sh(script: 'git show -s --pretty=%an', returnStdout: true)
+    return sh(script: 'git show -s --pretty=%ae', returnStdout: true)
 }
 
 def gitAddTag(String credentialId, String env, String version) {
