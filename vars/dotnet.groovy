@@ -29,8 +29,24 @@ def test(body) {
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
+
+    def coverage = ""
+    def report = ""
+    def output = ""
+
+    if (config.genCoverage) {
+        coverage = "/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=${PWD}/coverage/"
+    }
+
+    if (config.genReport) {
+        report = "--logger trx -r ./TestResults/report.trx"
+    }
+
+    if (config.output) {
+        output = "-o ./publish --no-build --no-restore"
+    }
     
     sh label: "dotnet core test", script: """
-    dotnet test
+    dotnet test ${coverage} ${report} ${output}
     """
 }
