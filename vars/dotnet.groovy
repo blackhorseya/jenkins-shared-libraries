@@ -25,11 +25,11 @@ def test(Map configs) {
     def output = ""
 
     if (configs.genCoverage) {
-        coverage = "/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=${PWD}/coverage.xml"
+        coverage = "/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=report/coverage.xml"
     }
 
     if (configs.genReport) {
-        report = "--logger trx -r ./report.trx"
+        report = "--logger trx -r reports"
     }
 
     if (configs.output) {
