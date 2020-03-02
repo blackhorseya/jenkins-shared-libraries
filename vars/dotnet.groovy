@@ -53,3 +53,9 @@ def scannerBegin(Map configs) {
     /d:sonar.cs.vstest.reportsPaths=reports/report.trx
     """
 }
+
+def scannerEnd(Map configs) {
+    sh label: "sonarscanner end", script: """
+    dotnet sonarscanner end /d:sonar.login=${configs.token}
+    """
+}
