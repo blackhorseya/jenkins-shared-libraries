@@ -34,6 +34,6 @@ def buildAndPushImage(Map configs) {
     docker push ${configs.imageName}:${configs.version}
     """
     sh label: "print new 5 images", script: """
-    docker images ${configs.imageName} | sort -r -V | header -n 5
+    docker images ${configs.imageName} | sort -r -V | head -n 5
     """
 }
