@@ -43,5 +43,7 @@ def getTargetEnv(String branch) {
             return "stg"
         case ~/.*\/develop/:
             return "dev"
+        case ~/.*\/feature\/.*/:
+            return "dev"
     }
 }
