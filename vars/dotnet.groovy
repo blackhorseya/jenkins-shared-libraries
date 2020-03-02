@@ -25,7 +25,7 @@ def test(Map configs) {
     def output = ""
 
     if (configs.genCoverage) {
-        coverage = "/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=report/coverage.xml"
+        coverage = "/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=reports/coverage.xml"
     }
 
     if (configs.genReport) {
