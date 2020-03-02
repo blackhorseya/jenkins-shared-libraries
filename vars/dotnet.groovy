@@ -11,7 +11,7 @@ def build(body) {
     def nugetSource = ""
     def useCache = ""
 
-    if (!config.nuget?.trim()) {
+    if (config.nuget != null) {
         nugetSource = "--source ${config.nuget}"
     }
 
