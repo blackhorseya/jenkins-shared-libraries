@@ -2,20 +2,15 @@ def printInfo() {
     sh label: "print dotnet info", script: "dotnet --info"
 }
 
-def build(body) {
-    def config = [:]
-    body.resolveStrategy = Closure.DELEGATE_FIRST
-    body.delegate = config
-    body()
-
+def build(Map configs) {
     def nugetSource = ""
     def useCache = ""
 
-    if (config.nuget != null) {
-        nugetSource = "--source ${config.nuget}"
+    if (configs.nuget != null) {
+        nugetSource = "--source ${configs.nuget}"
     }
 
-    if (!config.useCache) {
+    if (!configs.useCache) {
         useCache = "--no-cache"
     }
 
@@ -30,7 +25,6 @@ def test(Map configs) {
     def output = ""
 
     if (configs.genCoverage) {
-        echo "gen coverage"
         coverage = "/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=${PWD}/coverage/"
     }
 
@@ -39,7 +33,7 @@ def test(Map configs) {
     }
 
     if (configs.output) {
-        output = "-o ./publish --no-build --no-restore"
+        output = "-o ${configs.output} --no-build --no-restore"
     }
     
     sh label: "dotnet core test", script: """
