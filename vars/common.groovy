@@ -7,7 +7,7 @@ def getChanges() {
         def entries = changeLogSets[i].items
         for (int j = 0; j < entries.length; j++) {
             def entry = entries[j]
-            ret += "${j+1}. ${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}\n${entry.msg}"
+            ret += "${i+1}.${j+1} ${entry.commitId} by ${entry.author} on ${new Date(entry.timestamp)}\n${entry.msg}\n"
         }
     }
 
