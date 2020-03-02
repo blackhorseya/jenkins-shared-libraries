@@ -1,3 +1,10 @@
+def printInfo() {
+    sh label: "print docker info and version", script: """
+    docker info
+    docker version
+    """
+}
+
 def buildAndPushImage(Map configs) {
     if (configs.imageName == null) {
         error("missing imageName from parameters")
