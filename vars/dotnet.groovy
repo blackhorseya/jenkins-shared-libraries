@@ -23,3 +23,14 @@ def build(body) {
     dotnet build -v normal --nologo ${nugetSource} ${useCache} -c Release -o ./publish
     """
 }
+
+def test(body) {
+    def config = [:]
+    body.resolveStrategy = Closure.DELEGATE_FIRST
+    body.delegate = config
+    body()
+    
+    sh label: "dotnet core test", script: """
+    dotnet test
+    """
+}
