@@ -58,7 +58,7 @@ def helmUpgrade(Map configs) {
     }
 
     sh label: "deploy to ${configs.env} with ${configs.imageName}:${configs.version}", script: """
-    helm --namespace=${configs.env} upgrade --install ${releasePrefix}${appName} ${chart} \
+    helm --namespace=${configs.env} upgrade --install ${releasePrefix}${configs.appName} ${chart} \
     -f ${values} \
     --set image.tag=${configs.version}
     """
