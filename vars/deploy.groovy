@@ -6,6 +6,7 @@ def copyConfig(String credentialId) {
     if (credentialId == null) {
         error("missing credentialId from parameters")
     }
+    
     withCredentials([file(credentialsId: "${credentialId}", variable: 'config')]) {
         sh label: "copy kube config to /root/.kube/", script: """
         mkdir -p /root/.kube/ && cp ${config} /root/.kube/config
