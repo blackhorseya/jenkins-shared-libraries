@@ -41,13 +41,15 @@ def test(Map configs) {
     """
 }
 
-def scanner(Map configs) {
-    sh label: "sonar-scanner", script: """
-    sonar-scanner \
-    -Dsonar.projectKey=${configs.projectKey} \
-    -Dsonar.projectVersion=${configs.version} \
-    -Dsonar.sources=. \
-    -Dsonar.host.url=${configs.hostUrl} \
-    -Dsonar.login=${configs.token}
+def scannerBegin(Map configs) {
+    sh label: "sonar-scanner begin", script: """
+    dotnet sonarscanner begin /k:\"${configs.projectKey}\" \
+    /v:${configs.version} \
+    /d:sonar.host.url=${configs.hostUrl} \
+    /d:sonar.login=${configs.token} \
+    /d:sonar.exclusions=**/*.js,**/*.ts,**/*.css,bin/**/*,obj/**/*,wwwroot/**/*,ClientApp/**/* \
+    /d:sonar.cs.opencover.reportsPaths=reports/coverage.xml \
+    /d:sonar.coverage.exclusions=**/Entities/**/*,test/**/* \
+    /d:sonar.cs.vstest.reportsPaths=reports/report.trx
     """
 }
