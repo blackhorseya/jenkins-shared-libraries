@@ -14,6 +14,10 @@ def getChanges() {
     return ret
 }
 
+def getAuthorEmail() {
+    return sh(script: 'git show -s --pretty=%an', returnStdout: true)
+}
+
 def gitAddTag(String credentialId, String env, String version) {
     if (credentialId == null) {
         error("missing credentialId from parameters")
