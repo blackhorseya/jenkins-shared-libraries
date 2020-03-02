@@ -20,6 +20,6 @@ def build(body) {
     }
 
     sh label: "dotnet core build", script: """
-    dotnet build -v normal --nologo ${nugetSource} ${useCache}
+    dotnet build -v normal --nologo ${nugetSource} ${useCache} -c Release -o ./publish
     """
 }
