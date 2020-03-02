@@ -13,7 +13,9 @@ def call(body) {
             IMAGE_NAME = "${DOCKERHUB_USR}/${APP_NAME}"
 
             // docker credentials
-            DOCKERHUB = credentials('docker-hub-credential')
+            DOCKER_REGISTRY_URL = "https://registry.hub.docker.com/"
+            DOCKER_REGISTRY_ID = "docker-hub-credential"
+            DOCKER_REGISTRY_CRED = credentials("${DOCKER_REGISTRY_ID}")
 
             // sonarqube settings
             SONARQUBE_HOST_URL = "https://sonar.blackhorseya.com"
@@ -117,19 +119,13 @@ Application: ${APP_NAME}:${FULL_VERSION}
             stage('Build and push docker image') {
                 steps {
                     container('docker') {
-                        sh label: "docker build image", script: """
-                        docker build -t ${IMAGE_NAME}:latest -f Dockerfile --network host .
-                        """
-                        sh label: "docker login to dockerhub", script: """
-                        docker login --username ${DOCKERHUB_USR} --password ${DOCKERHUB_PSW}
-                        """
-                        sh label: "docker tag and push image ${FULL_VERSION}", script: """
-                        docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${FULL_VERSION}
-                        docker push ${IMAGE_NAME}:latest
-                        docker push ${IMAGE_NAME}:${FULL_VERSION}
-                        """
-                        sh label: "print all ${IMAGE_NAME}", script: """
-                        docker images ${IMAGE_NAME}"""
+                        script {
+                            docker.withRegistry("${DOCKER_REGISTRY_URL}", "${DOCKER_REGISTRY_ID}") {
+                                def image = docker.build("${IMAGE_NAME}:${FULL_VERSION}", "--network host .")
+                                image.push()
+                                image.push('latest')
+                            }
+                        }
                     }
                 }
             }
