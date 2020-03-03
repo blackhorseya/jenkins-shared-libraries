@@ -55,13 +55,13 @@ def getTargetEnv(String branch) {
     }
 
     switch(branch) {
-        case ~/.*\/master/:
+        case ~/.*master/:
             return "prod"
-        case ~/.*\/release\/.*/:
+        case ~/.*release.*/:
             return "stg"
-        case ~/.*\/develop/:
+        case ~/.*develop/:
             return "dev"
-        case ~/.*\/feature\/.*/:
+        case ~/.*feature.*/:
             return "dev"
     }
 }
