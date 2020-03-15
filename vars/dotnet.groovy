@@ -50,7 +50,7 @@ def scannerBegin(Map configs) {
     /d:sonar.exclusions=**/*.js,**/*.ts,**/*.css,bin/**/*,obj/**/*,wwwroot/**/*,ClientApp/**/* \
     /d:sonar.cs.opencover.reportsPaths=reports/coverage.xml \
     /d:sonar.coverage.exclusions=**/Entities/**/*,test/**/* \
-    /d:sonar.cs.vstest.reportsPaths=reports/report.trx
+    /d:sonar.cs.vstest.reportsPaths=reports/*.trx
     """
 }
 
